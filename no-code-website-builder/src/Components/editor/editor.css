@@ -1,0 +1,23 @@
+
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.btn-primary {
+    border: 2px solid blue;
+    padding: 0px 15px!important;
+    color: #ffffff!important;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 25px !important;
+    font-size: 16px;
+    line-height: 38px;
+  }
+

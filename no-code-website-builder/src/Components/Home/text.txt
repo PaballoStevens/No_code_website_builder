@@ -1,0 +1,161 @@
+import { useEffect , useState} from 'react';
+import axios from 'axios';
+import React from 'react';
+import swal from 'sweetalert';
+import { useHistory , Link} from 'react-router-dom';
+import "./home.css";
+import { FaPlus } from 'react-icons/fa';
+import { FaPen } from 'react-icons/fa';
+import { FaUpload } from 'react-icons/fa';
+import { FaBook } from 'react-icons/fa';
+import Form from "react-bootstrap/Form";
+
+function Home() {
+ 
+  const history = useHistory();
+  const [results, setResults] = useState([]);
+  const [searchBarcode, setSearchBarcode] = useState("");
+
+  const createSubmit = (e) => {
+     e.preventDefault();
+     history.push('/project-name')
+  }
+
+  const template = (e) => {
+    e.preventDefault();
+    history.push('/templates')
+ }
+
+  const logoutSubmit = (e) => {
+    e.preventDefault();
+
+    axios.post(`/api/logout`).then(res =>{
+      if(res.data.status === 200)
+      {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_name');
+        swal("Success", res.data.message,"success");
+        history.push('/')
+      }
+    })
+  }
+  useEffect(() => {
+    axios.get('/api/data')
+    .then((response) => {
+      setResults(response.data.data);
+    });
+  }, []);
+
+  const filterBarcode = results.filter((item) => {
+    return searchBarcode !== "" ? item.projectName === searchBarcode : item;;
+  });
+
+  const searchResults = filterBarcode.map((data, i) => {
+    return (
+       <div className="col-sm-4"  key={i}>
+       <div className="card box">
+         <div className="card-body">
+           <img src='https://cdn.onlinewebfonts.com/svg/img_246830.png' className='img' srcSet='https://cdn.onlinewebfonts.com/svg/img_246830.png x1' />
+           <br />
+           <br />
+           <h5 className="card-title">{data.projectName}</h5>
+           <Link to={`edit/${data.id}`} className="btn bg-danger m-2 text-white">< FaPen /> Customize</Link>
+           <Link to={`page/${data.identifier}`} className="btn bg-success text-white">< FaUpload/> Publish</Link>
+         </div>
+       </div>
+       <br></br>
+     </div>
+     
+    );
+  });
+
+  var AuthButtons = '';
+  if(!localStorage.getItem('auth_token'))
+  {
+
+  }
+  else {
+    AuthButtons = (
+      <li className="nav-item">
+          <button type='button' onClick={logoutSubmit} className='ml-2 btn-danger shadow bg-danger b'>Logout</button>
+      </li>
+    )
+  }
+
+  return (
+    <div class="wrapper">
+     <nav id="sidebar">
+            <div className="sidebar-header">
+                <img src="https://geekulcha.dev/logo_white.png" alt="" srcset="" style={{width:"170px"}}/>
+            </div>
+
+    </nav>
+<br />
+
+<div className='card'>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  
+<div className="collapse navbar-collapse" id="navbarNav">
+   
+</div> 
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+   
+  </button>
+  <ul class="dropdown-menu dropdown-menu-dark">
+  {AuthButtons} 
+  </ul>
+</div>   
+</nav>  
+<div id="content">
+<Form>
+        <Form.Group controlId="formGroupSearch">
+          <Form.Control
+            autoFocus
+            type="text"
+            placeholder="Search project"
+            onChange={(e) => setSearchBarcode(e.target.value)}
+          />
+        </Form.Group>
+      </Form>
+      <div className="collapse navbar-collapse">
+      <ul className="navbar-nav ms-auto">
+      {AuthButtons}  
+      </ul>
+    </div>
+<div className="row p-10 d-flex test">
+ {searchResults}  
+</div>
+<div className="row p-6">
+  <div className="col-sm-4">
+  </div>
+  <div className="col-sm-2">
+    <div className="card button">
+      <div className="card-body text-align-center ">
+        <button type='button' onClick={createSubmit} className='btn btn-lg bg-primary text-white float-center col-sm'><FaPlus /></button><br/>
+        Create
+      </div>
+    </div>
+  </div>
+  <div className="col-sm-2">
+    <div className="card button">
+      <div className="card-body text-align-center ">
+        <button type='button' onClick={template} className='btn btn-lg bg-primary text-white float-center col-sm'><FaBook /></button><br/>
+        Templates
+      </div>
+    </div>
+  </div>
+  <div className="col-sm-4">
+  </div>
+</div>
+</div>
+    </div>
+    </div>
+  )
+}
+
+
+export default Home
